@@ -1,0 +1,95 @@
+version: '3'
+services:
+    memcache:
+        image: memcached
+        ports:
+          - 11211:11211
+        command: memcached -u memcache
+
+    solr:
+        image: solr
+        ports:
+            - "8983:8983"
+        volumes:
+            - ./solr:/opt/solr/server/solr
+
+    redis:
+        build:
+            context: ./redis
+        ports:
+            - 6379:6379
+        restart: always
+
+    mysql:
+        image: mysql
+        command: --default-authentication-plugin=mysql_native_password
+        restart: always
+        ports:
+            - 3306:3306
+        environment:
+            MYSQL_ROOT_PASSWORD: root
+
+    php:
+        build:
+            context: ./php
+        restart: always
+        volumes:
+             - "/var/www:/var/www/html"
+        links:
+            - mysql
+
+    nginx_melman:
+        build:
+            context: ./nginx
+        volumes:
+            - "/var/www/melman:/var/www/html/melman"
+        ports:
+            - "8881:8881"
+        restart: always
+        links:
+            - php
+
+    nginx_tardis:
+        build:
+            context: ./nginx
+        volumes:
+            - "/var/www/tardis:/var/www/html/tardis"
+        ports:
+            - "8882:8882"
+        restart: always
+        links:
+            - php
+
+    nginx_marty:
+        build:
+            context: ./nginx
+        volumes:
+            - "/var/www/marty:/var/www/html/marty"
+        privileged: true
+        ports:
+            - "8000:8000"
+        links:
+            - php
+
+    nginx_recruta:
+        build:
+            context: ./nginx
+        volumes:
+            - "/var/www/recruta:/var/www/html/recruta"
+        privileged: true
+        ports:
+            - "8001:8001"
+        links:
+            - php
+
+    nginx_ralf:
+        build:
+            context: ./nginx
+        volumes:
+            - "/var/www/ralf:/var/www/html/ralf"
+        ports:
+            - "8883:8883"
+        restart: always
+        links:
+            - php
+    

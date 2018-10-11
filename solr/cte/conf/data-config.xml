@@ -1,0 +1,66 @@
+<dataConfig>
+    <script><![CDATA[
+
+	function RCTWSTransform(row) {
+		return row;
+	}
+
+	]]></script>
+
+    <dataSource type="JdbcDataSource"
+                driver="com.mysql.jdbc.Driver"
+                url="${url}"
+                user="${user}"
+                password="${password}"/>
+
+    <document name="cte">
+        <entity onError="skip" name="cte" pk="id" transformer="script:RCTWSTransform" query="
+            SELECT
+                cte.id as id,
+                cte.data_emissao as data_emissao,
+                cte.data_recebimento as data_recebimento,
+                cte.numero_cte as cte_numero,
+                cte.cod_cte as cte_codigo,
+                cte.chave as cte_chave,
+                CASE 
+                    WHEN cte.tipo_cte = 0 THEN 'CT-e Normal'
+                    WHEN cte.tipo_cte = 1 THEN 'CT-e de Complemento de Valores'
+                    WHEN cte.tipo_cte = 2 THEN 'CT-e emitido em hipótese de anulação de débito'
+                END AS cte_tipo,
+                cte.cfop as cfop,
+                CONCAT(cte.cod_status_sefaz, ' - ', desc_status_sefaz) AS sefaz,
+                cte.cod_status_sefaz as cod_status_sefaz,
+                cte.desc_status_sefaz as desc_status_sefaz,
+                cte.data_conferencia_sefaz as data_conferencia_sefaz,
+                cte.status_integracao_protheus as status_integracao_protheus,
+                cte.data_integracao_protheus as data_integracao_protheus,
+                emitente.cnpj as cnpj_emitente,
+                emitente.nome as nome_emitente,
+                tomador.cnpj as cnpj_tomador
+            FROM
+                cte
+            INNER JOIN cte_ator emitente ON emitente.cte_id = cte.id
+            INNER JOIN cte_ator_tipo ON cte_ator_tipo.id = emitente.cte_ator_tipo_id AND cte_ator_tipo.slug = 'emitente'
+            INNER JOIN cte_ator as tomador ON tomador.cte_id = cte.id AND tomador.tomador = 1
+            WHERE TRUE GROUP BY cte.id;">
+
+            <field column="id" name="id"/>
+            <field column="data_emissao" name="data_emissao"/>
+            <field column="data_recebimento" name="data_recebimento"/>
+            <field column="cte_numero" name="cte_numero"/>
+            <field column="cte_codigo" name="cte_codigo"/>
+            <field column="cte_chave" name="cte_chave"/>
+            <field column="cte_tipo" name="cte_tipo"/>
+            <field column="cfop" name="cfop"/>
+            <field column="sefaz" name="sefaz"/>
+            <field column="cod_status_sefaz" name="cod_status_sefaz"/>
+            <field column="desc_status_sefaz" name="desc_status_sefaz"/>
+            <field column="data_conferencia_sefaz" name="data_conferencia_sefaz"/>
+            <field column="status_integracao_protheus" name="status_integracao_protheus"/>
+            <field column="data_integracao_protheus" name="data_integracao_protheus"/>
+            <field column="cnpj_emitente" name="cnpj_emitente"/>
+            <field column="nome_emitente" name="nome_emitente"/>
+            <field column="cnpj_tomador" name="cnpj_tomador"/>
+        </entity>
+    </document>
+</dataConfig>
