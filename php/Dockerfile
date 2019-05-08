@@ -48,12 +48,7 @@ RUN apt-get update && apt-get upgrade -y \
 
 ADD custom_php.ini /usr/local/etc/php/conf.d/
 RUN apt-get update && apt-get install -my wget gnupg
-RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
-RUN php -r "if (hash_file('SHA384', 'composer-setup.php') === '93b54496392c062774670ac18b134c3b3a95e5a5e5c8f1a9f115f203b75bf9a129d5daa8ba6a13e2cc8a1da0806388a8') { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;"
-RUN php composer-setup.php
-RUN php -r "unlink('composer-setup.php');"
-RUN cp -rv composer.phar /usr/bin/composer
-RUN chmod +x /usr/bin/composer
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 RUN curl -sL https://deb.nodesource.com/setup_8.x |  bash -
 RUN apt install -y nodejs
 RUN npm install -g bower
